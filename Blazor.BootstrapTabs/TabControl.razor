@@ -1,0 +1,44 @@
+<CascadingValue Value="this">
+    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+
+        @foreach (TabPage tabPage in Pages)
+        {
+            <li class="nav-item" role="presentation">
+                <button type="button" class="nav-link @GetActiveClass(tabPage)" role="tab" @onclick="() => ActivatePage(tabPage)">
+                    @tabPage.Text
+                </button>
+            </li>
+        }
+    </ul>
+    <div class="tab-content">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    // Next line is needed so we are able to add <TabPage> components inside
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public TabPage? ActivePage { get; set; }
+
+    List<TabPage> Pages = new List<TabPage>();
+
+    internal void AddPage(TabPage tabPage)
+    {
+        Pages.Add(tabPage);
+        if (Pages.Count == 1)
+            ActivePage = tabPage;
+        StateHasChanged();
+    }
+
+    string GetActiveClass(TabPage page)
+    {
+        return page == ActivePage ? "active" : string.Empty;
+    }
+
+    void ActivatePage(TabPage page)
+    {
+        ActivePage = page;
+    }
+}
