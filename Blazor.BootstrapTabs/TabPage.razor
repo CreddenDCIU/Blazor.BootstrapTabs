@@ -15,6 +15,13 @@
     [Parameter, EditorRequired]
     public string Text { get; set; } = string.Empty;
 
+    [Parameter]
+    public bool Hidden { get; set; } = false;
+
+    [Parameter]
+    public bool HasValidationErrors { get; set; } = false;
+    public bool OldValidationValue { get; set; } = false;
+
     protected override void OnInitialized()
     {
         if (Parent == null)

@@ -1,10 +1,13 @@
 <CascadingValue Value="this">
-    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+    <ul class="@CssClass" id="tabs-tab" role="tablist">
 
-        @foreach (TabPage tabPage in Pages)
+        @foreach (TabPage tabPage in GetUnhiddenPages())
         {
+            String buttonClass = "nav-link " + @GetActiveClass(tabPage);
+            if(tabPage.HasValidationErrors) { buttonClass += " invalid"; }
+
             <li class="nav-item" role="presentation">
-                <button type="button" class="nav-link @GetActiveClass(tabPage)" role="tab" @onclick="() => ActivatePage(tabPage)">
+                <button type="button" class="@buttonClass" role="tab" @onclick="() => ActivatePage(tabPage)">
                     @tabPage.Text
                 </button>
             </li>
@@ -20,9 +23,31 @@
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
+    [Parameter]
+    public string CssClass { get; set; } = "nav nav-pills mb-3";
+
     public TabPage? ActivePage { get; set; }
 
     List<TabPage> Pages = new List<TabPage>();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if(firstRender) { return; }
+
+        bool stateChanged = false;
+
+        @foreach (TabPage tabPage in GetUnhiddenPages())
+        {
+            if (tabPage.OldValidationValue == tabPage.HasValidationErrors) { continue; }
+
+            tabPage.OldValidationValue = tabPage.HasValidationErrors;
+            stateChanged = true;
+        }
+
+        if (stateChanged) { this.StateHasChanged(); }
+    }
 
     internal void AddPage(TabPage tabPage)
     {
@@ -40,5 +65,16 @@
     void ActivatePage(TabPage page)
     {
         ActivePage = page;
+    }
+
+    List<TabPage> GetUnhiddenPages()
+    {
+        List<TabPage> retVal = Pages.Where(p => !p.Hidden).ToList();
+
+        if(ActivePage != null && retVal.Contains(ActivePage)) { return retVal; }
+
+        if (Pages.Count >= 1) { ActivePage = Pages[0]; }
+
+        return retVal;
     }
 }
