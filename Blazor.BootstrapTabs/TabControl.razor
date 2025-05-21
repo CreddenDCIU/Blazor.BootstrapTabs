@@ -3,8 +3,8 @@
 
         @foreach (TabPage tabPage in GetUnhiddenPages())
         {
-            String buttonClass = "nav-link " + @GetActiveClass(tabPage);
-            if(tabPage.HasValidationErrors) { buttonClass += " invalid"; }
+            String buttonClass = "nav-link " + @GetActiveClass(tabPage)
+                + (tabPage.HasValidationErrors ? " invalid" : (tabPage.HasChanges ? " hasChanges" : ""));
 
             <li class="nav-item" role="presentation">
                 <button type="button" class="@buttonClass" role="tab" @onclick="() => ActivatePage(tabPage)">
